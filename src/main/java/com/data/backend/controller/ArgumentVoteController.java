@@ -32,6 +32,11 @@ public class ArgumentVoteController {
         return argumentVoteService.createArgumentVote(argumentVote);
     }
 
+    @PostMapping("/bulk")
+    public List<ArgumentVote> createArgumentVotes() {
+        return argumentVoteService.createArgumentVotes();
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<ArgumentVote> updateArgumentVote(@PathVariable String id,
             @RequestBody ArgumentVote argumentVote) {

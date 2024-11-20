@@ -32,6 +32,11 @@ public class TopicController {
         return topicService.createTopic(topic);
     }
 
+    @PostMapping("/bulk")
+    public List<Topic> createTopics(@RequestBody List<Topic> topics) {
+        return topicService.createTopics(topics);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Topic> updateTopic(@PathVariable String id, @RequestBody Topic topic) {
         Topic updatedTopic = topicService.updateTopic(id, topic);

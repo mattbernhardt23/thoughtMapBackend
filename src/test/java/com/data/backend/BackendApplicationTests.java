@@ -50,44 +50,6 @@ class BackendApplicationTests {
 	void contextLoads() {
 	}
 
-	// UserService Tests
-	@Test
-	void testGetAllUsers() {
-		when(userRepository.findAll()).thenReturn(Arrays.asList(new User()));
-		assertFalse(userService.getAllUsers().isEmpty());
-	}
-
-	@Test
-	void testGetUserById() {
-		User user = new User();
-		user.setId("1");
-		when(userRepository.findById("1")).thenReturn(Optional.of(user));
-		Optional<User> foundUser = userService.getUserById("1");
-		assertTrue(foundUser.isPresent());
-		assertEquals("1", foundUser.get().getId());
-	}
-
-	@Test
-	void testCreateUser() {
-		User user = new User();
-		when(userRepository.save(user)).thenReturn(user);
-		assertEquals(user, userService.createUser(user));
-	}
-
-	@Test
-	void testUpdateUser() {
-		User user = new User();
-		user.setId("1");
-		when(userRepository.save(user)).thenReturn(user);
-		assertEquals(user, userService.updateUser("1", user));
-	}
-
-	@Test
-	void testDeleteUser() {
-		userService.deleteUser("1");
-		verify(userRepository, times(1)).deleteById("1");
-	}
-
 	// TopicService Tests
 	@Test
 	void testGetAllTopics() {

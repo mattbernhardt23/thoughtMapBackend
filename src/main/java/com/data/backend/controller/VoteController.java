@@ -32,6 +32,11 @@ public class VoteController {
         return voteService.createVote(vote);
     }
 
+    @PostMapping("/bulk")
+    public List<Vote> createVotes() {
+        return voteService.createVotes();
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Vote> updateVote(@PathVariable String id, @RequestBody Vote vote) {
         Vote updatedVote = voteService.updateVote(id, vote);

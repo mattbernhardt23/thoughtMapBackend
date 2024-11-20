@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -30,6 +31,11 @@ public class ArgumentController {
     @PostMapping
     public Argument createArgument(@RequestBody Argument argument) {
         return argumentService.createArgument(argument);
+    }
+
+    @PostMapping("/bulk")
+    public List<Argument> createArguments(@RequestBody List<Map<String, Object>> input) {
+        return argumentService.createArguments(input);
     }
 
     @PutMapping("/{id}")
