@@ -9,9 +9,12 @@ phases:
     commands:
       - echo Building the Docker image...
       - docker build -t thoughtmap-backend .
+      - echo Tagging the Docker image...
       - docker tag thoughtmap-backend:latest 123456789012.dkr.ecr.us-east-2.amazonaws.com/thoughtmap-backend:latest
-      - echo Pushing the Docker image to ECR...
+  post_build:
+    commands:
+      - echo Pushing the Docker image to Amazon ECR...
       - docker push 123456789012.dkr.ecr.us-east-2.amazonaws.com/thoughtmap-backend:latest
 artifacts:
   files:
-    - Dockerfile
+    - "**/*"
