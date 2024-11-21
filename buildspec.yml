@@ -7,6 +7,8 @@ phases:
       - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 123456789012.dkr.ecr.us-east-2.amazonaws.com
   build:
     commands:
+      - echo Building the Java application with Maven...
+      - mvn clean package -DskipTests
       - echo Building the Docker image...
       - docker build -t thoughtmap-backend .
       - echo Tagging the Docker image...
@@ -17,4 +19,5 @@ phases:
       - docker push 123456789012.dkr.ecr.us-east-2.amazonaws.com/thoughtmap-backend:latest
 artifacts:
   files:
-    - "**/*"
+    - target/*.jar
+    - buildspec.yml
