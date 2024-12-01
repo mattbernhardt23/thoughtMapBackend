@@ -1,11 +1,9 @@
 version: 0.0
 os: linux
 files:
-  - source: /
-    destination: /var/app
-    owner: ec2-user
-    group: ec2-user
-
+  - source: /scripts
+    destination: /home/ec2-user/thoughtMap2Backend
+file_exists_behavior: OVERWRITE
 hooks:
   ApplicationStop:
     - location: scripts/cleanup.sh
