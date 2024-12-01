@@ -12,6 +12,9 @@ hooks:
       timeout: 120
       runas: root
   BeforeInstall:
+   - location: scripts/install_docker.sh
+      timeout: 300
+      runas: root
     - location: scripts/stop_docker.sh
       timeout: 300
       runas: root
