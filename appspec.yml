@@ -1,38 +1,36 @@
-version: 0.0
+version: 1.0
 os: linux
 files:
   - source: scripts/cleanup.sh
-    destination: scripts
+    destination: /opt/scripts
   - source: scripts/install_docker.sh
-    destination: scripts
+    destination: /opt/scripts
   - source: scripts/start_docker.sh
-    destination: scripts
+    destination: /opt/scripts
   - source: scripts/stop_docker.sh
-    destination: scripts
+    destination: /opt/scripts
   - source: scripts/health_check.sh
-    destination: scripts
+    destination: /opt/scripts
+  - source: scripts/final_health_check.sh
+    destination: /opt/scripts
 
 hooks:
   ApplicationStop:
-    - location: scripts/cleanup.sh
+    - location: /opt/scripts/cleanup.sh
       timeout: 120
       runas: root
   BeforeInstall:
-    - location: scripts/install_docker.sh
+    - location: /opt/scripts/install_docker.sh
       timeout: 300
       runas: root
-    - location: scripts/stop_docker.sh
+    - location: /opt/scripts/stop_docker.sh
       timeout: 300
       runas: root
   AfterInstall:
-    - location: scripts/start_docker.sh
+    - location: /opt/scripts/start_docker.sh
       timeout: 300
       runas: root
   ApplicationStart:
-    - location: scripts/health_check.sh
-      timeout: 60
-      runas: root
-  AfterAllowTestTraffic:
-    - location: scripts/final_health_check.sh
+    - location: /opt/scripts/health_check.sh
       timeout: 60
       runas: root
