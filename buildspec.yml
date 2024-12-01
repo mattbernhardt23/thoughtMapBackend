@@ -4,7 +4,7 @@ phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 123456789012.dkr.ecr.us-east-2.amazonaws.com
+      - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 123456789012.dkr.ecr.us-east-2.amazonaws.com || exit 1
   build:
     commands:
       - echo Building the Java application with Maven...
@@ -13,10 +13,16 @@ phases:
       - docker build -t thoughtmap-backend .
       - echo Tagging the Docker image...
       - docker tag thoughtmap-backend:latest 123456789012.dkr.ecr.us-east-2.amazonaws.com/thoughtmap-backend:latest
+  # post_build:
+  #   commands:
+  #     - echo Pushing the Docker image to Amazon ECR...
+  #     - docker push 123456789012.dkr.ecr.us-east-2.amazonaws.com/thoughtmap-backend:latest
 artifacts:
   files:
     - target/*.jar
     - buildspec.yml
+    - appspec.yml
+    - scripts/**/*
 cache:
   paths:
-    - "/root/.m2/**/*"
+    - /root/.m2/repository/**/* # Maven dependencies cache
