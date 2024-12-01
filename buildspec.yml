@@ -23,6 +23,6 @@ artifacts:
     - buildspec.yml
     - appspec.yml
     - scripts/**/*
-cache:
-  paths:
-    - /root/.m2/repository/**/* # Maven dependencies cache
+# cache:
+#   paths:
+#     - /root/.m2/repository/**/* # Maven dependencies cache
