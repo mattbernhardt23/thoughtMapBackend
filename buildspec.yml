@@ -23,12 +23,6 @@ artifacts:
     - buildspec.yml
     - appspec.yml
     - scripts/**/*
-    - source: scripts/cleanup.sh
-      destination: scripts
-    - source: scripts/install_docker.sh
-      destination: scripts
-    - source: scripts/stop_docker.sh
-      destination: scripts
-# cache:
-#   paths:
-#     - /root/.m2/repository/**/* # Maven dependencies cache
+cache:
+  paths:
+    - /root/.m2/repository/**/* # Maven dependencies cache
