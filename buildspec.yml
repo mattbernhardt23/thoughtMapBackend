@@ -22,11 +22,11 @@ artifacts:
     - target/*.jar
     - buildspec.yml
     - appspec.yml
-    - scripts/cleanup.sh
-    - scripts/stop_docker.sh
-    - scripts/start_docker.sh
-    - scripts/health_check.sh
-    - scripts/install_docker.sh
+    - cleanup.sh
+    - stop_docker.sh
+    - start_docker.sh
+    - health_check.sh
+    - install_docker.sh
 cache:
   paths:
     - /root/.m2/repository/**/* # Maven dependencies cache
