@@ -6,6 +6,7 @@ target/
 !**/src/test/**/target/
 ThoughtMapDataKey.pem
 webhoo-config.json
+pipeline-config.json
 
 ### STS ###
 .apt_generated
