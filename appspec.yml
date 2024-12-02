@@ -8,22 +8,22 @@ files:
 
 hooks:
   ApplicationStop:
-    - location: scripts/cleanup.sh
+    - location: cleanup.sh
       timeout: 120
       runas: root
   BeforeInstall:
-    - location: scripts/stop_docker.sh
+    - location: stop_docker.sh
       timeout: 300
       runas: root
   AfterInstall:
-    - location: scripts/start_docker.sh
+    - location: start_docker.sh
       timeout: 300
       runas: root
   ApplicationStart:
-    - location: scripts/health_check.sh
+    - location: health_check.sh
       timeout: 60
       runas: root
   AfterAllowTestTraffic:
-    - location: scripts/final_health_check.sh
+    - location: final_health_check.sh
       timeout: 60
       runas: root
