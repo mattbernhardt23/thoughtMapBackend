@@ -1,0 +1,16 @@
+{
+    "name": "ThoughtMapDataService--Source--mattbernhardt23thoughtmapbackend",
+    "targetPipeline": "ThoughtMapDataService",
+    "targetAction": "Source",
+    "filters": [
+      {
+        "jsonPath": "$.ref",
+        "matchEquals": "refs/heads/main"
+      }
+    ],
+    "authentication": "GITHUB_HMAC",
+    "authenticationConfiguration": {
+      "SecretToken": "Hugo11$$"
+    }
+  }
+  
