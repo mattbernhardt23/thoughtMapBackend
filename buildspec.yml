@@ -1,6 +1,13 @@
 version: 0.2
 
 phases:
+  install:
+    commands:
+      - echo Installing necessary tools...
+      - apt-get update && apt-get install -y awscli docker.io
+      - echo Verifying installed tools...
+      - which aws || echo "AWS CLI not found" && exit 1
+      - which docker || echo "Docker not found" && exit 1
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
@@ -13,10 +20,10 @@ phases:
       - docker build -t thoughtmap-backend .
       - echo Tagging the Docker image...
       - docker tag thoughtmap-backend:latest 123456789012.dkr.ecr.us-east-2.amazonaws.com/thoughtmap-backend:latest
-  # post_build:
-  #   commands:
-  #     - echo Pushing the Docker image to Amazon ECR...
-  #     - docker push 123456789012.dkr.ecr.us-east-2.amazonaws.com/thoughtmap-backend:latest
+  post_build:
+    commands:
+      - echo Pushing the Docker image to Amazon ECR...
+      - docker push 123456789012.dkr.ecr.us-east-2.amazonaws.com/thoughtmap-backend:latest
 artifacts:
   files:
     - target/*.jar
