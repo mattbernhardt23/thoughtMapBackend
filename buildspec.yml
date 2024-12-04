@@ -3,7 +3,7 @@ phases:
   install:
     commands:
       - echo Installing necessary tools...
-      - apt-get update && apt-get install -y awscli docker.io maven
+      - apt-get update && apt-get install -y awscli docker.io maven jq
       - echo Verifying installed tools...
       - if ! which aws; then echo "AWS CLI not found" && exit 1; fi
       - if ! which docker; then echo "Docker not found" && exit 1; fi
@@ -11,8 +11,8 @@ phases:
   pre_build:
     commands:
       - echo Retrieving Docker credentials from AWS Secrets Manager...
-      - SECRET=$(aws secretsmanager get-secret-value --secret-id DockerLogin --query SecretString --output text)
-      - DOCKER_LOGIN=$(echo $SECRET | jq -r .DOCKER_LOGIN)
+      - SECRET=$(aws secretsmanager get-secret-value --secret-id DockerLogin --region us-east-1 --query SecretString --output text)
+      - DOCKER_LOGIN=$(echo $SECRET | jq -r .DOCKER_USERNAME)
       - DOCKER_PASSWORD=$(echo $SECRET | jq -r .DOCKER_PASSWORD)
       - echo Logging in to Docker Hub...
       - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_LOGIN" --password-stdin
