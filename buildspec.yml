@@ -3,10 +3,11 @@ phases:
   install:
     commands:
       - echo Installing necessary tools...
-      - apt-get update && apt-get install -y awscli docker.io
+      - apt-get update && apt-get install -y awscli docker.io maven
       - echo Verifying installed tools...
       - if ! which aws; then echo "AWS CLI not found" && exit 1; fi
       - if ! which docker; then echo "Docker not found" && exit 1; fi
+      - if ! which mvn; then echo "Maven not found" && exit 1; fi
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
