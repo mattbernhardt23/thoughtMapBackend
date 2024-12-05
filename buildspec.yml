@@ -27,16 +27,15 @@ phases:
       - docker build -t thoughtmap-backend .
       - echo Tagging the Docker image...
       - docker tag thoughtmap-backend:latest 761018876037.dkr.ecr.us-east-2.amazonaws.com/thoughtmap/service/data:latest
+      - echo Packaging the application bundle...
+      - zip -r ThoughtMapDataService.zip appspec.yml buildspec.yml scripts/ target/
   post_build:
     commands:
       - echo Pushing the Docker image to Amazon ECR...
       - docker push 761018876037.dkr.ecr.us-east-2.amazonaws.com/thoughtmap/service/data:latest
 artifacts:
   files:
-    - target/*.jar
-    - buildspec.yml
-    - appspec.yml
-    - scripts/**/*
+    - ThoughtMapDataService.zip
 cache:
   paths:
     - /root/.m2/repository/**/* # Maven dependencies cache
