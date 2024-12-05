@@ -25,11 +25,12 @@ phases:
       - echo Building the Docker image...
       - docker build -t thoughtmap-backend .
       - echo Tagging the Docker image...
-      - docker tag thoughtmap-backend:latest 123456789012.dkr.ecr.us-east-2.amazonaws.com/thoughtmap-backend:latest
+      - docker tag 761018876037.dkr.ecr.us-east-2.amazonaws.com/thoughtmap/service/data:latest
   post_build:
     commands:
       - echo Pushing the Docker image to Amazon ECR...
-      - docker push 123456789012.dkr.ecr.us-east-2.amazonaws.com/thoughtmap-backend:latest
+      - docker push 761018876037.dkr.ecr.us-east-2.amazonaws.com/thoughtmap/service/data:latest
+
 artifacts:
   files:
     - target/*.jar
