@@ -1,8 +1,11 @@
 version: 0.0
 os: linux
 files:
-  - source: /
-    destination: /var/app
+  - source: target/
+    destination: /var/app/target
+    overwrite: true
+  - source: scripts/
+    destination: /var/app/scripts
     overwrite: true
 
 hooks:
@@ -20,9 +23,5 @@ hooks:
       runas: root
   ApplicationStart:
     - location: scripts/health_check.sh
-      timeout: 60
-      runas: root
-  AfterAllowTestTraffic:
-    - location: scripts/final_health_check.sh
       timeout: 60
       runas: root
