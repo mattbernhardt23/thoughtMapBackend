@@ -1,4 +1,7 @@
 #!/bin/bash
+echo "Cleaning up target directory..."
+rm -rf /var/app/target/*
+
 set -e
 
 # Log cleanup activity
