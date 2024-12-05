@@ -11,8 +11,14 @@ phases:
       - if ! which mvn; then echo "Maven not found" && exit 1; fi
   pre_build:
     commands:
+      - echo Retrieving Docker credentials from AWS Secrets Manager...
+      - SECRET=$(aws secretsmanager get-secret-value --secret-id DockerLogin --region us-east-1 --query SecretString --output text)
+      - DOCKER_LOGIN=$(echo $SECRET | jq -r .DOCKER_USERNAME)
+      - DOCKER_PASSWORD=$(echo $SECRET | jq -r .DOCKER_PASSWORD)
+      - echo Logging in to Docker Hub...
+      - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_LOGIN" --password-stdin
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 123456789012.dkr.ecr.us-east-2.amazonaws.com || exit 1
+      - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 761018876037.dkr.ecr.us-east-2.amazonaws.com || exit 1
   build:
     commands:
       - echo Building the Java application with Maven...
