@@ -1,10 +1,10 @@
 #!/bin/bash
-# Install Docker
-yum update -y
-yum install -y docker
+echo "Installing Docker..."
+sudo yum update -y
+sudo yum install -y docker
+sudo service docker start
+sudo usermod -a -G docker ec2-user
 
-# Start Docker service
-service docker start
+echo "Docker installed and started."
+docker --version
 
-# Enable Docker to start on boot
-systemctl enable docker
