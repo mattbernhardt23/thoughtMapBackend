@@ -3,11 +3,12 @@ phases:
   install:
     commands:
       - echo Installing necessary tools...
-      - apt-get update && apt-get install -y awscli docker.io maven jq
+      - apt-get update && apt-get install -y awscli docker.io maven jq zip
       - echo Verifying installed tools...
       - if ! which aws; then echo "AWS CLI not found" && exit 1; fi
       - if ! which docker; then echo "Docker not found" && exit 1; fi
       - if ! which mvn; then echo "Maven not found" && exit 1; fi
+      - if ! which zip; then echo "Zip not found" && exit 1; fi
   pre_build:
     commands:
       - echo Retrieving Docker credentials from AWS Secrets Manager...
@@ -26,16 +27,16 @@ phases:
       - docker build -t thoughtmap-backend .
       - echo Tagging the Docker image...
       - docker tag thoughtmap-backend:latest 761018876037.dkr.ecr.us-east-2.amazonaws.com/thoughtmap/service/data:latest
+      - echo Packaging the application bundle...
+      - zip -r ThoughtMapDataService.zip appspec.yml buildspec.yml scripts/ target/
   post_build:
     commands:
       - echo Pushing the Docker image to Amazon ECR...
       - docker push 761018876037.dkr.ecr.us-east-2.amazonaws.com/thoughtmap/service/data:latest
 artifacts:
   files:
-    - appspec.yml # Include the appspec.yml file
-    - buildspec.yml # Include the buildspec.yml file
-    - scripts/** # Include all scripts
-    - target/** # Include the built Java application files
+    - ThoughtMapDataService.zip
 cache:
   paths:
     - /root/.m2/repository/**/* # Maven dependencies cache
+
