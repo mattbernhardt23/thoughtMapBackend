@@ -1,6 +1,6 @@
 package com.data.backend.controller;
 
-import com.data.backend.model.Creator;
+import com.data.backend.model.User;
 import com.data.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,18 +17,18 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    public List<Creator> getAllUsers() {
+    public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Creator> getUserById(@PathVariable String id) {
-        Optional<Creator> user = userService.getUserById(id);
+    public ResponseEntity<User> getUserById(@PathVariable String id) {
+        Optional<User> user = userService.getUserById(id);
         return user.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Creator createUser(@RequestBody Creator user) {
+    public User createUser(@RequestBody User user) {
         return userService.createUser(user);
     }
 

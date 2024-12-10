@@ -9,9 +9,12 @@ import com.data.backend.model.nested.Name;
 
 @Data
 @Document(collection = "users")
-public class Creator {
+public class User {
     @Id
     private String id;
     private Name name;
     private Img picture;
+    private Boolean contributor;
+    private Boolean admin;
+    private Boolean moderator;
 }

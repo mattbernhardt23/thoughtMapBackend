@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class Feed {
-    private Creator creator;
+    private User creator;
     private int upVotes;
     private int downVotes;
     private String title;
@@ -15,7 +15,7 @@ public class Feed {
 
     @Data
     public static class ArgumentFeed {
-        private Creator creator;
+        private User creator;
         private int upVotes;
         private int downVotes;
         private boolean supporting;

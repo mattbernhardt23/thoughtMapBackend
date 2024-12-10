@@ -1,6 +1,7 @@
 package com.data.backend;
 
 import com.data.backend.model.*;
+import com.data.backend.model.dto.UpdateTopicRequest;
 import com.data.backend.repository.*;
 import com.data.backend.service.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +15,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -76,15 +78,50 @@ class BackendApplicationTests {
 
 	@Test
 	void testUpdateTopic() {
-		Topic topic = new Topic();
-		topic.setId("1");
-		when(topicRepository.save(topic)).thenReturn(topic);
-		assertEquals(topic, topicService.updateTopic("1", topic));
+		// Arrange
+		String topicId = "1";
+		String userId = "user123";
+
+		// Create a mock topic and user
+		Topic existingTopic = new Topic();
+		existingTopic.setId(topicId);
+		existingTopic.setCreator_id(userId);
+		existingTopic.setTitle("Old Title");
+		existingTopic.setDescription("Old Description");
+
+		User mockUser = new User();
+		mockUser.setId(userId);
+		mockUser.setAdmin(true);
+		mockUser.setContributor(true);
+		mockUser.setModerator(true);
+
+		// Create a request for updating the topic
+		UpdateTopicRequest updateRequest = new UpdateTopicRequest();
+		updateRequest.setTopic_id(topicId);
+		updateRequest.setUser_id(userId);
+		updateRequest.setTitle("Updated Title");
+		updateRequest.setDescription("Updated Description");
+
+		// Mock the repository calls
+		when(topicRepository.findById(topicId)).thenReturn(Optional.of(existingTopic));
+		when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+		when(topicRepository.save(any(Topic.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		// Act
+		topicService.updateTopic(updateRequest);
+
+		// Assert
+		verify(topicRepository, times(1)).findById(topicId);
+		verify(userRepository, times(1)).findById(userId);
+		verify(topicRepository, times(1)).save(existingTopic);
+
+		assertEquals("Updated Title", existingTopic.getTitle());
+		assertEquals("Updated Description", existingTopic.getDescription());
 	}
 
 	@Test
 	void testDeleteTopic() {
-		topicService.deleteTopic("1");
+		topicService.deleteTopic("1", "1");
 		verify(topicRepository, times(1)).deleteById("1");
 	}
 

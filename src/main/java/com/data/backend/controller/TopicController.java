@@ -1,8 +1,11 @@
 package com.data.backend.controller;
 
 import com.data.backend.model.Topic;
+import com.data.backend.model.dto.DeleteTopicRequest;
+import com.data.backend.model.dto.UpdateTopicRequest;
 import com.data.backend.service.TopicService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,15 +40,30 @@ public class TopicController {
         return topicService.createTopics(topics);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Topic> updateTopic(@PathVariable String id, @RequestBody Topic topic) {
-        Topic updatedTopic = topicService.updateTopic(id, topic);
-        return ResponseEntity.ok(updatedTopic);
+    @DeleteMapping("/id")
+    public ResponseEntity<String> deleteTopic(@RequestBody DeleteTopicRequest request) {
+        try {
+            // Use the fields from the request object
+            topicService.deleteTopic(request.getTopic_id(), request.getUser_id());
+            return ResponseEntity.ok("Topic deleted successfully.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred.");
+        }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTopic(@PathVariable String id) {
-        topicService.deleteTopic(id);
-        return ResponseEntity.noContent().build();
+    @PutMapping("/id")
+    public ResponseEntity<String> updateTopic(@RequestBody UpdateTopicRequest request) {
+        try {
+            // Use the fields from the request object
+            topicService.updateTopic(request);
+            return ResponseEntity.ok("Topic updated successfully.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred.");
+        }
     }
+
 }
