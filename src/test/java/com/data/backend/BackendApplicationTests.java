@@ -1,6 +1,7 @@
 package com.data.backend;
 
 import com.data.backend.model.*;
+import com.data.backend.model.dto.UpdateArgumentRequest;
 import com.data.backend.model.dto.UpdateTopicRequest;
 import com.data.backend.repository.*;
 import com.data.backend.service.*;
@@ -70,10 +71,30 @@ class BackendApplicationTests {
 	}
 
 	@Test
-	void testCreateTopic() {
+	void testCreateTopic_Success() {
+		// Arrange
 		Topic topic = new Topic();
+		topic.setId("topic1");
+		topic.setCreatorId("user123");
+		topic.setTitle("New Topic");
+		topic.setDescription("This is a new topic.");
+
+		User user = new User();
+		user.setId("user123");
+		user.setAdmin(true);
+		user.setContributor(true);
+		user.setModerator(true);
+
+		when(userRepository.findById("user123")).thenReturn(Optional.of(user));
 		when(topicRepository.save(topic)).thenReturn(topic);
-		assertEquals(topic, topicService.createTopic(topic));
+
+		// Act
+		Topic createdTopic = topicService.createTopic(topic);
+
+		// Assert
+		assertEquals(topic, createdTopic);
+		verify(userRepository, times(1)).findById("user123");
+		verify(topicRepository, times(1)).save(topic);
 	}
 
 	@Test
@@ -85,7 +106,7 @@ class BackendApplicationTests {
 		// Create a mock topic and user
 		Topic existingTopic = new Topic();
 		existingTopic.setId(topicId);
-		existingTopic.setCreator_id(userId);
+		existingTopic.setCreatorId(userId);
 		existingTopic.setTitle("Old Title");
 		existingTopic.setDescription("Old Description");
 
@@ -120,9 +141,31 @@ class BackendApplicationTests {
 	}
 
 	@Test
-	void testDeleteTopic() {
-		topicService.deleteTopic("1", "1");
-		verify(topicRepository, times(1)).deleteById("1");
+	void testDeleteTopic_Success() {
+		// Arrange
+		String topicId = "topic123";
+		String userId = "user123";
+
+		Topic topic = new Topic();
+		topic.setId(topicId);
+		topic.setCreatorId(userId);
+
+		User user = new User();
+		user.setId(userId);
+		user.setAdmin(true);
+		user.setContributor(true);
+		user.setModerator(true);
+
+		when(topicRepository.findById(topicId)).thenReturn(Optional.of(topic));
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+		// Act
+		topicService.deleteTopic(topicId, userId);
+
+		// Assert
+		verify(topicRepository, times(1)).findById(topicId);
+		verify(userRepository, times(1)).findById(userId);
+		verify(topicRepository, times(1)).deleteById(topicId);
 	}
 
 	// ArgumentService Tests
@@ -143,24 +186,176 @@ class BackendApplicationTests {
 	}
 
 	@Test
-	void testCreateArgument() {
+	void testCreateArgument_Success() {
+		// Arrange
+		String userId = "user123";
 		Argument argument = new Argument();
+		argument.setTopicId("topic456");
+		argument.setCreatorId(userId);
+
+		Topic topic = new Topic();
+		topic.setId("topic456");
+
+		User user = new User();
+		user.setId(userId);
+		user.setAdmin(false);
+		user.setContributor(true);
+		user.setModerator(false);
+
+		when(topicRepository.findById("topic456")).thenReturn(Optional.of(topic));
+		when(userRepository.findById("user123")).thenReturn(Optional.of(user));
 		when(argumentRepository.save(argument)).thenReturn(argument);
-		assertEquals(argument, argumentService.createArgument(argument));
+
+		// Act
+		Argument createdArgument = argumentService.createArgument(argument);
+
+		// Assert
+		assertEquals(argument, createdArgument);
+		verify(topicRepository, times(1)).findById("topic456");
+		verify(userRepository, times(1)).findById("user123");
+		verify(argumentRepository, times(1)).save(argument);
 	}
 
 	@Test
-	void testUpdateArgument() {
+	void testCreateArgument_TopicNotFound() {
+		// Arrange
 		Argument argument = new Argument();
-		argument.setId("1");
-		when(argumentRepository.save(argument)).thenReturn(argument);
-		assertEquals(argument, argumentService.updateArgument("1", argument));
+		argument.setTopicId("nonexistentTopic");
+
+		when(topicRepository.findById("nonexistentTopic")).thenReturn(Optional.empty());
+
+		// Act & Assert
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+			argumentService.createArgument(argument);
+		});
+
+		assertEquals("The associated topic does not exist.", exception.getMessage());
+		verify(topicRepository, times(1)).findById("nonexistentTopic");
+		verifyNoInteractions(userRepository);
+		verifyNoInteractions(argumentRepository);
 	}
 
 	@Test
-	void testDeleteArgument() {
-		argumentService.deleteArgument("1");
-		verify(argumentRepository, times(1)).deleteById("1");
+	void testUpdateArgument_Success() {
+		// Arrange
+		UpdateArgumentRequest request = new UpdateArgumentRequest();
+		request.setArgumentId("arg1");
+		request.setUserId("user123");
+		request.setTitle("Updated Title");
+		request.setDescription("Updated Description");
+
+		Argument existingArgument = new Argument();
+		existingArgument.setId("arg1");
+		existingArgument.setCreatorId("user123");
+
+		User user = new User();
+		user.setId(request.getUserId());
+		user.setAdmin(false);
+		user.setContributor(true);
+		user.setModerator(false);
+
+		when(argumentRepository.findById("arg1")).thenReturn(Optional.of(existingArgument));
+		when(userRepository.findById("user123")).thenReturn(Optional.of(user));
+		when(argumentRepository.save(any(Argument.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		// Act
+		argumentService.updateArgument(request);
+
+		// Assert
+		verify(argumentRepository, times(1)).findById("arg1");
+		verify(userRepository, times(1)).findById("user123");
+		verify(argumentRepository, times(1)).save(existingArgument);
+		assertEquals("Updated Title", existingArgument.getTitle());
+		assertEquals("Updated Description", existingArgument.getDescription());
+	}
+
+	@Test
+	void testUpdateArgument_NotAuthorized() {
+		// Arrange
+		UpdateArgumentRequest request = new UpdateArgumentRequest();
+		request.setArgumentId("arg1");
+		request.setUserId("user123");
+
+		Argument existingArgument = new Argument();
+		existingArgument.setId("arg1");
+		existingArgument.setCreatorId("creator456"); // Different creator
+
+		User user = new User();
+		user.setId(request.getUserId());
+		user.setAdmin(false);
+		user.setContributor(false);
+		user.setModerator(false);
+
+		when(argumentRepository.findById("arg1")).thenReturn(Optional.of(existingArgument));
+		when(userRepository.findById("user123")).thenReturn(Optional.of(user));
+
+		// Act & Assert
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+			argumentService.updateArgument(request);
+		});
+
+		assertEquals("You are not authorized to update this argument.", exception.getMessage());
+		verify(argumentRepository, times(1)).findById("arg1");
+		verify(userRepository, times(1)).findById("user123");
+		verifyNoMoreInteractions(argumentRepository);
+	}
+
+	@Test
+	void testDeleteArgument_Success() {
+		// Arrange
+		String argumentId = "arg1";
+		String userId = "user123";
+
+		Argument argument = new Argument();
+		argument.setId("arg1");
+		argument.setCreatorId("user123");
+
+		User user = new User();
+		user.setId(userId);
+		user.setAdmin(false);
+		user.setContributor(false);
+		user.setModerator(false);
+
+		when(argumentRepository.findById(argumentId)).thenReturn(Optional.of(argument));
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+		// Act
+		argumentService.deleteArgument(argumentId, userId);
+
+		// Assert
+		verify(argumentRepository, times(1)).findById(argumentId);
+		verify(userRepository, times(1)).findById(userId);
+		verify(argumentRepository, times(1)).deleteById(argumentId);
+	}
+
+	@Test
+	void testDeleteArgument_NotAuthorized() {
+		// Arrange
+		String argumentId = "arg1";
+		String userId = "user123";
+
+		Argument argument = new Argument();
+		argument.setId("arg1");
+		argument.setCreatorId("creator456"); // Different creator
+
+		User user = new User();
+		user.setId("user123");
+		user.setAdmin(false);
+		user.setContributor(false);
+		user.setModerator(false);
+
+		when(argumentRepository.findById(argumentId)).thenReturn(Optional.of(argument));
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+		// Act & Assert
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+			argumentService.deleteArgument(argumentId, userId);
+		});
+
+		assertEquals("You are not authorized to create an argument.", exception.getMessage());
+		verify(argumentRepository, times(1)).findById(argumentId);
+		verify(userRepository, times(1)).findById(userId);
+		verifyNoMoreInteractions(argumentRepository);
 	}
 
 	// VoteService Tests
@@ -181,18 +376,78 @@ class BackendApplicationTests {
 	}
 
 	@Test
-	void testCreateVote() {
-		Vote vote = new Vote();
-		when(voteRepository.save(vote)).thenReturn(vote);
-		assertEquals(vote, voteService.createVote(vote));
+	void testSubmitVote_CreateNewVote() {
+		// Arrange
+		Vote incomingVote = new Vote();
+		incomingVote.setUserId("user123");
+		incomingVote.setTopicId("topic456");
+		incomingVote.setVoteType("up");
+
+		when(voteRepository.findByUserIdAndTopicId("user123", "topic456")).thenReturn(Optional.empty());
+		when(voteRepository.save(incomingVote)).thenReturn(incomingVote);
+
+		// Act
+		Vote result = voteService.submitVote(incomingVote);
+
+		// Assert
+		assertNotNull(result);
+		assertEquals("up", result.getVoteType());
+		verify(voteRepository, times(1)).findByUserIdAndTopicId("user123", "topic456");
+		verify(voteRepository, times(1)).save(incomingVote);
 	}
 
+	// Test 2: Toggle off the vote when the same vote type is clicked
 	@Test
-	void testUpdateVote() {
-		Vote vote = new Vote();
-		vote.setId("1");
-		when(voteRepository.save(vote)).thenReturn(vote);
-		assertEquals(vote, voteService.updateVote("1", vote));
+	void testSubmitVote_ToggleOffVote() {
+		// Arrange
+		Vote existingVote = new Vote();
+		existingVote.setId("vote123");
+		existingVote.setUserId("user123");
+		existingVote.setTopicId("topic456");
+		existingVote.setVoteType("up");
+
+		Vote incomingVote = new Vote();
+		incomingVote.setUserId("user123");
+		incomingVote.setTopicId("topic456");
+		incomingVote.setVoteType("up");
+
+		when(voteRepository.findByUserIdAndTopicId("user123", "topic456")).thenReturn(Optional.of(existingVote));
+
+		// Act
+		Vote result = voteService.submitVote(incomingVote);
+
+		// Assert
+		assertNull(result); // Vote was removed
+		verify(voteRepository, times(1)).findByUserIdAndTopicId("user123", "topic456");
+		verify(voteRepository, times(1)).deleteById("vote123");
+	}
+
+	// Test 3: Change the vote when a different vote type is submitted
+	@Test
+	void testSubmitVote_ChangeVoteType() {
+		// Arrange
+		Vote existingVote = new Vote();
+		existingVote.setId("vote123");
+		existingVote.setUserId("user123");
+		existingVote.setTopicId("topic456");
+		existingVote.setVoteType("up");
+
+		Vote incomingVote = new Vote();
+		incomingVote.setUserId("user123");
+		incomingVote.setTopicId("topic456");
+		incomingVote.setVoteType("down");
+
+		when(voteRepository.findByUserIdAndTopicId("user123", "topic456")).thenReturn(Optional.of(existingVote));
+		when(voteRepository.save(existingVote)).thenReturn(existingVote);
+
+		// Act
+		Vote result = voteService.submitVote(incomingVote);
+
+		// Assert
+		assertNotNull(result);
+		assertEquals("down", result.getVoteType());
+		verify(voteRepository, times(1)).findByUserIdAndTopicId("user123", "topic456");
+		verify(voteRepository, times(1)).save(existingVote);
 	}
 
 	@Test
@@ -216,21 +471,6 @@ class BackendApplicationTests {
 		Optional<ArgumentVote> foundArgumentVote = argumentVoteService.getArgumentVoteById("1");
 		assertTrue(foundArgumentVote.isPresent());
 		assertEquals("1", foundArgumentVote.get().getId());
-	}
-
-	@Test
-	void testCreateArgumentVote() {
-		ArgumentVote argumentVote = new ArgumentVote();
-		when(argumentVoteRepository.save(argumentVote)).thenReturn(argumentVote);
-		assertEquals(argumentVote, argumentVoteService.createArgumentVote(argumentVote));
-	}
-
-	@Test
-	void testUpdateArgumentVote() {
-		ArgumentVote argumentVote = new ArgumentVote();
-		argumentVote.setId("1");
-		when(argumentVoteRepository.save(argumentVote)).thenReturn(argumentVote);
-		assertEquals(argumentVote, argumentVoteService.updateArgumentVote("1", argumentVote));
 	}
 
 	@Test

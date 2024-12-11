@@ -1,26 +1,26 @@
 package com.data.backend.model.dto;
 
-public class UpdateTopicRequest {
-    private String topicId;
+public class UpdateArgumentRequest {
+    private String argumentId;
     private String userId;
     private String title;
     private String description;
 
     // Getters and Setters
-    public String getTopic_id() {
-        return topicId;
+    public String getArgumentId() {
+        return argumentId;
     }
 
-    public void setTopic_id(String topic_id) {
-        this.topicId = topic_id;
+    public void setArgumentId(String argumentId) {
+        this.argumentId = argumentId;
     }
 
-    public String getUser_id() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUser_id(String user_id) {
-        this.userId = user_id;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getTitle() {
@@ -38,4 +38,5 @@ public class UpdateTopicRequest {
     public void setDescription(String description) {
         this.description = description;
     }
+
 }

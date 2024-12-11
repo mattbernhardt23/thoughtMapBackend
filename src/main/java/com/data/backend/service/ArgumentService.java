@@ -2,13 +2,18 @@ package com.data.backend.service;
 
 import com.data.backend.model.Argument;
 import com.data.backend.model.Topic;
+import com.data.backend.model.User;
+import com.data.backend.model.dto.UpdateArgumentRequest;
 import com.data.backend.repository.ArgumentRepository;
+import com.data.backend.repository.ArgumentVoteRepository;
 import com.data.backend.repository.TopicRepository;
 import com.data.backend.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +34,9 @@ public class ArgumentService {
     @Autowired
     private TopicRepository topicRepository;
 
+    @Autowired
+    private ArgumentVoteRepository argumentVoteRepository;
+
     public List<Argument> getAllArguments() {
         return argumentRepository.findAll();
     }
@@ -38,7 +46,70 @@ public class ArgumentService {
     }
 
     public Argument createArgument(Argument argument) {
+        // Verify the topic exists
+        Optional<Topic> topic = topicRepository.findById(argument.getTopicId());
+        if (topic.isEmpty()) {
+            throw new IllegalArgumentException("The associated topic does not exist.");
+        }
+
+        // Retrieve the user
+        User user = userRepository.findById(argument.getCreatorId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
+
+        // Check if the user is authorized
+        if (!isUserAuthorized(argument, user)) {
+            throw new IllegalArgumentException("You are not authorized to create an argument.");
+        }
+
+        // Save the argument to the database
         return argumentRepository.save(argument);
+    }
+
+    public void updateArgument(UpdateArgumentRequest request) {
+        // Retrieve the topic from the database
+        Argument argument = argumentRepository.findById(request.getArgumentId())
+                .orElseThrow(() -> new IllegalArgumentException("Argument not found."));
+
+        // Retrieve the user from the database
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
+
+        // Check if the user is authorized to update the topic
+        if (isUserAuthorized(argument, user)) {
+            // Update the topic's title and description
+            if (request.getTitle() != null && !request.getTitle().isEmpty()) {
+                argument.setTitle(request.getTitle());
+            }
+
+            if (request.getDescription() != null && !request.getDescription().isEmpty()) {
+                argument.setDescription(request.getDescription());
+            }
+
+            // Save the updated topic to the database
+            argumentRepository.save(argument);
+        } else {
+            throw new IllegalArgumentException("You are not authorized to update this argument.");
+        }
+    }
+
+    public void deleteArgument(String argumentId, String userId) {
+        // Verify the argument exists
+        Argument argument = argumentRepository.findById(argumentId)
+                .orElseThrow(() -> new IllegalArgumentException("Argument not found."));
+        ;
+
+        // Retrieve the user
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
+
+        // Check if the user is authorized
+        if (!isUserAuthorized(argument, user)) {
+            throw new IllegalArgumentException("You are not authorized to create an argument.");
+        }
+        // TODO:Delete all Votes and Comments Associated with the Argument
+        argumentVoteRepository.deleteAllByArgumentId(argumentId);
+
+        argumentRepository.deleteById(argumentId);
     }
 
     /**
@@ -88,8 +159,8 @@ public class ArgumentService {
                 argument.setTitle((String) argData.get("title"));
                 argument.setDescription((String) argData.get("description"));
                 argument.setSupporting((Boolean) argData.get("supporting"));
-                argument.setTopic_id(topicId); // Assign the topic ID
-                argument.setCreator_id(userIds.get(random.nextInt(userIds.size()))); // Assign a random creator ID
+                argument.setTopicId(topicId); // Assign the topic ID
+                argument.setCreatorId(userIds.get(random.nextInt(userIds.size()))); // Assign a random creator ID
                 arguments.add(argument);
             }
         }
@@ -98,12 +169,19 @@ public class ArgumentService {
         return argumentRepository.saveAll(arguments);
     }
 
-    public Argument updateArgument(String id, Argument argument) {
-        argument.setId(id);
-        return argumentRepository.save(argument);
+    /**
+     * Check if the user is authorized to delete the topic.
+     */
+    private boolean isUserAuthorized(Argument argument, User user) {
+        // Check if the user is the creator
+        if (argument.getCreatorId().equals(user.getId())) {
+            return true;
+        }
+
+        // Check if the user has the required role
+        return Boolean.TRUE.equals(user.getAdmin()
+                || Boolean.TRUE.equals(user.getContributor())
+                || Boolean.TRUE.equals(user.getModerator()));
     }
 
-    public void deleteArgument(String id) {
-        argumentRepository.deleteById(id);
-    }
 }

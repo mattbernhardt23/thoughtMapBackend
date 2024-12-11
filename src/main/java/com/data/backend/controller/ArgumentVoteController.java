@@ -29,19 +29,12 @@ public class ArgumentVoteController {
 
     @PostMapping
     public ArgumentVote createArgumentVote(@RequestBody ArgumentVote argumentVote) {
-        return argumentVoteService.createArgumentVote(argumentVote);
+        return argumentVoteService.submitVote(argumentVote);
     }
 
     @PostMapping("/bulk")
     public List<ArgumentVote> createArgumentVotes() {
         return argumentVoteService.createArgumentVotes();
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<ArgumentVote> updateArgumentVote(@PathVariable String id,
-            @RequestBody ArgumentVote argumentVote) {
-        ArgumentVote updatedArgumentVote = argumentVoteService.updateArgumentVote(id, argumentVote);
-        return ResponseEntity.ok(updatedArgumentVote);
     }
 
     @DeleteMapping("/{id}")

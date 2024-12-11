@@ -1,8 +1,11 @@
 package com.data.backend.controller;
 
 import com.data.backend.model.Argument;
+import com.data.backend.model.dto.DeleteArgumentRequest;
+import com.data.backend.model.dto.UpdateArgumentRequest;
 import com.data.backend.service.ArgumentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,15 +41,22 @@ public class ArgumentController {
         return argumentService.createArguments(input);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Argument> updateArgument(@PathVariable String id, @RequestBody Argument argument) {
-        Argument updatedArgument = argumentService.updateArgument(id, argument);
-        return ResponseEntity.ok(updatedArgument);
+    @PutMapping("/id")
+    public ResponseEntity<String> updateArgument(@RequestBody UpdateArgumentRequest request) {
+        argumentService.updateArgument(request);
+        return ResponseEntity.ok("Argument updated successfully.");
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteArgument(@PathVariable String id) {
-        argumentService.deleteArgument(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/id")
+    public ResponseEntity<String> deleteArgument(@RequestBody DeleteArgumentRequest request) {
+        try {
+            // Use the fields from the request object
+            argumentService.deleteArgument(request.getArgumentId(), request.getUserId());
+            return ResponseEntity.ok("Argument deleted successfully.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred.");
+        }
     }
 }

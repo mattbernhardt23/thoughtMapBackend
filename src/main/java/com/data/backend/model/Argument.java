@@ -10,8 +10,8 @@ import java.util.Date;
 public class Argument {
     @Id
     private String id;
-    private String creator_id;
-    private String topic_id;
+    private String creatorId;
+    private String topicId;
     private boolean supporting;
     private String title;
     private String description;

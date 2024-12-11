@@ -14,4 +14,10 @@ public interface ArgumentRepository extends MongoRepository<Argument, String> {
     // Query to retrieve only the IDs (_id field)
     @Query(value = "{}", fields = "{_id: 1}")
     List<String> findAllIds();
+
+    // Delete All By TopicId
+    void deleteAllByTopicId(String topicId);
+
+    // Find By TopicId
+    List<Argument> findByTopicId(String topicId);
 }

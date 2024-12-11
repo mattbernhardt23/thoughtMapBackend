@@ -36,13 +36,25 @@ public class ArgumentVoteService {
         return argumentVoteRepository.findById(id);
     }
 
-    public ArgumentVote createArgumentVote(ArgumentVote argumentVote) {
-        return argumentVoteRepository.save(argumentVote);
-    }
+    public ArgumentVote submitVote(ArgumentVote incomingVote) {
+        // Check if the user has already voted on this topic
+        Optional<ArgumentVote> existingVote = argumentVoteRepository.findByUserIdAndArgumentId(
+                incomingVote.getUserId(), incomingVote.getArgumentId());
 
-    public ArgumentVote updateArgumentVote(String id, ArgumentVote argumentVote) {
-        argumentVote.setId(id);
-        return argumentVoteRepository.save(argumentVote);
+        if (existingVote.isPresent()) {
+            // If the same voteType is clicked, remove the vote (toggle behavior)
+            if (existingVote.get().getVoteType().equalsIgnoreCase(incomingVote.getVoteType())) {
+                argumentVoteRepository.deleteById(existingVote.get().getId());
+                return null; // Vote removed
+            } else {
+                // Update the vote to the new type
+                existingVote.get().setVoteType(incomingVote.getVoteType());
+                return argumentVoteRepository.save(existingVote.get());
+            }
+        }
+
+        // Create a new vote if none exists
+        return argumentVoteRepository.save(incomingVote);
     }
 
     public void deleteArgumentVote(String id) {
@@ -88,8 +100,8 @@ public class ArgumentVoteService {
         for (String topicId : argumentIds) {
             for (String userId : userIds) {
                 ArgumentVote vote = new ArgumentVote();
-                vote.setUser_id(userId); // Assign user ID
-                vote.setArgument_id(topicId); // Assign topic ID
+                vote.setUserId(userId); // Assign user ID
+                vote.setArgumentId(topicId); // Assign topic ID
                 vote.setVoteType(random.nextBoolean() ? "up" : "down");
                 votes.add(vote); // Add vote to the list
             }

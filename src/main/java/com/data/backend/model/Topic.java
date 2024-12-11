@@ -11,7 +11,7 @@ import java.util.Date;
 public class Topic {
     @Id
     private String id;
-    private String creator_id;
+    private String creatorId;
     private String title;
     private String description;
     private Date dateCreated = new Date();

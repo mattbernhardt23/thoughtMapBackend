@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/api/votes")
@@ -29,18 +31,19 @@ public class VoteController {
 
     @PostMapping
     public Vote createVote(@RequestBody Vote vote) {
-        return voteService.createVote(vote);
+        return voteService.submitVote(vote);
+    }
+
+    @PostMapping("/delete/all")
+    public ResponseEntity<String> deleteAllByTopicId(@RequestBody String topicId) {
+        // TODO: process POST request
+        voteService.deleteAllByTopicId(topicId);
+        return ResponseEntity.ok("Votes deleted successfully.");
     }
 
     @PostMapping("/bulk")
     public List<Vote> createVotes() {
         return voteService.createVotes();
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Vote> updateVote(@PathVariable String id, @RequestBody Vote vote) {
-        Vote updatedVote = voteService.updateVote(id, vote);
-        return ResponseEntity.ok(updatedVote);
     }
 
     @DeleteMapping("/{id}")

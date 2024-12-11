@@ -36,8 +36,33 @@ public class VoteService {
         return voteRepository.findById(id);
     }
 
-    public Vote createVote(Vote vote) {
-        return voteRepository.save(vote);
+    public Vote submitVote(Vote incomingVote) {
+        // Check if the user has already voted on this topic
+        Optional<Vote> existingVote = voteRepository.findByUserIdAndTopicId(
+                incomingVote.getUserId(), incomingVote.getTopicId());
+
+        if (existingVote.isPresent()) {
+            // If the same voteType is clicked, remove the vote (toggle behavior)
+            if (existingVote.get().getVoteType().equalsIgnoreCase(incomingVote.getVoteType())) {
+                voteRepository.deleteById(existingVote.get().getId());
+                return null; // Vote removed
+            } else {
+                // Update the vote to the new type
+                existingVote.get().setVoteType(incomingVote.getVoteType());
+                return voteRepository.save(existingVote.get());
+            }
+        }
+
+        // Create a new vote if none exists
+        return voteRepository.save(incomingVote);
+    }
+
+    public void deleteAllByTopicId(String topicId) {
+        voteRepository.deleteAllByTopicId(topicId);
+    }
+
+    public void deleteVote(String id) {
+        voteRepository.deleteById(id);
     }
 
     public List<Vote> createVotes() {
@@ -79,22 +104,13 @@ public class VoteService {
         for (String topicId : topicIds) {
             for (String userId : userIds) {
                 Vote vote = new Vote();
-                vote.setUser_Id(userId); // Assign user ID
-                vote.setTopic_Id(topicId); // Assign topic ID
+                vote.setUserId(userId); // Assign user ID
+                vote.setTopicId(topicId); // Assign topic ID
                 vote.setVoteType(random.nextBoolean() ? "up" : "down");
                 votes.add(vote); // Add vote to the list
             }
         }
 
         return voteRepository.saveAll(votes);
-    }
-
-    public Vote updateVote(String id, Vote vote) {
-        vote.setId(id);
-        return voteRepository.save(vote);
-    }
-
-    public void deleteVote(String id) {
-        voteRepository.deleteById(id);
     }
 }

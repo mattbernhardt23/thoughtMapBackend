@@ -12,8 +12,8 @@ import java.util.Date;
 public class Vote {
     @Id
     private String id;
-    private String user_Id; // Reference to the user who voted
-    private String topic_Id; // Reference to the topic being voted on
+    private String userId; // Reference to the user who voted
+    private String topicId; // Reference to the topic being voted on
     private String voteType; // Either "up" or "down"
     private Date votedAt = new Date();
 }

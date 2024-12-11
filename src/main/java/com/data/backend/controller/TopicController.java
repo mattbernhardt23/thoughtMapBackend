@@ -43,8 +43,10 @@ public class TopicController {
     @DeleteMapping("/id")
     public ResponseEntity<String> deleteTopic(@RequestBody DeleteTopicRequest request) {
         try {
+            // Print Inside Try Block
+            System.out.println("Inside Try Block");
             // Use the fields from the request object
-            topicService.deleteTopic(request.getTopic_id(), request.getUser_id());
+            topicService.deleteTopic(request.getTopicId(), request.getUserId());
             return ResponseEntity.ok("Topic deleted successfully.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
