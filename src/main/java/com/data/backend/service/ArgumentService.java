@@ -106,7 +106,7 @@ public class ArgumentService {
         if (!isUserAuthorized(argument, user)) {
             throw new IllegalArgumentException("You are not authorized to create an argument.");
         }
-        // TODO:Delete all Votes and Comments Associated with the Argument
+
         argumentVoteRepository.deleteAllByArgumentId(argumentId);
 
         argumentRepository.deleteById(argumentId);

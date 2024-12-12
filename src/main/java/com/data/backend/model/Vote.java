@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Data
 @Document(collection = "votes")
-@CompoundIndex(name = "user_topic_idx", def = "{'user_Id': 1, 'topic_Id': 1}", unique = true)
+@CompoundIndex(name = "user_topic_idx", def = "{'userId': 1, 'topicId': 1}", unique = true)
 public class Vote {
     @Id
     private String id;

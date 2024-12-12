@@ -12,4 +12,6 @@ public interface VoteRepository extends MongoRepository<Vote, String> {
     Optional<Vote> findByUserIdAndTopicId(String userId, String topicId);
 
     void deleteAllByTopicId(String topicId);
+
+    long countByTopicIdAndVoteType(String id, String string);
 }

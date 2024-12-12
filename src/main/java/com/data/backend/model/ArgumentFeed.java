@@ -1,12 +1,10 @@
 package com.data.backend.model;
 
 import java.util.Date;
-import java.util.List;
-
 import lombok.Data;
 
 @Data
-public class Feed {
+public class ArgumentFeed {
     private String id;
     private User creator;
     private String title;
@@ -14,10 +12,9 @@ public class Feed {
     private Date dateCreated;
     private long upVotes;
     private long downVotes;
-    private List<ArgumentFeed> arguments;
 
-    public Feed(String id, User creator, String title, String description, Date dateCreated, long upVotes,
-            long downVotes, List<ArgumentFeed> arguments) {
+    public ArgumentFeed(String id, User creator, String title, String description, Date dateCreated, long upVotes,
+            long downVotes) {
         this.id = id;
         this.creator = creator;
         this.title = title;
@@ -25,6 +22,5 @@ public class Feed {
         this.dateCreated = dateCreated;
         this.upVotes = upVotes;
         this.downVotes = downVotes;
-        this.arguments = arguments;
     }
 }

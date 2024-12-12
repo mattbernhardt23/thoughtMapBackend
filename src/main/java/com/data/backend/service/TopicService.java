@@ -119,23 +119,18 @@ public class TopicService {
         System.out.println("User: " + user);
         // Check if the user is authorized to delete the topic
         if (isUserAuthorized(topic, user)) {
-            // TODO:Delete All Associate Arguments, Votes, ArguemntVotes and Comments
             // Generate a List of Argument IDs Associated with the Topic
-            // Generate a List of Argument IDs Associated with the Topic
+
             List<String> argumentIds = argumentRepository.findByTopicId(topic_id)
                     .stream()
                     .map(Argument::getId)
                     .collect(Collectors.toList());
 
-            // Print Argument IDs
-            System.out.println("Argument IDs: " + argumentIds);
-
-            // Print Argument IDs
-            System.out.println("Argument IDs: " + argumentIds);
-
             // Delete All Votes Associated with argumentIds
             argumentVoteRepository.deleteAllByArgumentIdIn(argumentIds);
+            // Delete All Arguments Associated with the Topic
             argumentRepository.deleteAllByTopicId(topic_id);
+            // Delete All Votes Associated with the Topic
             voteRepository.deleteAllByTopicId(topic_id);
 
             // Delete the topic from the database
@@ -146,7 +141,7 @@ public class TopicService {
     }
 
     /**
-     * Assigns a random creator_id to each topic from the list of users and saves
+     * Assigns a random creatorId to each topic from the list of users and saves
      * them to the database.
      *
      * @param topics List of Topic objects to be updated and saved.
@@ -160,7 +155,7 @@ public class TopicService {
                         ObjectMapper objectMapper = new ObjectMapper();
                         @SuppressWarnings("unchecked")
                         Map<String, Map<String, String>> idMap = objectMapper.readValue(id, Map.class);
-                        return idMap.get("_id").get(""); // Extract the plain ID
+                        return idMap.get("_id").get("$oid"); // Extract the plain ID
                     } catch (Exception e) {
                         throw new RuntimeException("Error parsing user ID", e);
                     }

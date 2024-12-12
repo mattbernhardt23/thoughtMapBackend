@@ -17,4 +17,6 @@ public interface ArgumentVoteRepository extends MongoRepository<ArgumentVote, St
 
     Optional<ArgumentVote> findByUserIdAndArgumentId(String userId, String argumentId);
 
+    long countByArgumentIdAndVoteType(String id, String string);
+
 }
