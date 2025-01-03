@@ -3,20 +3,22 @@ package com.data.backend.model;
 import java.util.Date;
 import java.util.List;
 
+import com.data.backend.model.dto.Creator;
+
 import lombok.Data;
 
 @Data
 public class Feed {
     private String id;
-    private User creator;
+    private Creator creator;
     private String title;
     private String description;
     private Date dateCreated;
     private long upVotes;
     private long downVotes;
-    private List<ArgumentFeed> arguments;
+    private List<ArgumentFeed> args;
 
-    public Feed(String id, User creator, String title, String description, Date dateCreated, long upVotes,
+    public Feed(String id, Creator creator, String title, String description, Date dateCreated, long upVotes,
             long downVotes, List<ArgumentFeed> arguments) {
         this.id = id;
         this.creator = creator;
@@ -25,6 +27,6 @@ public class Feed {
         this.dateCreated = dateCreated;
         this.upVotes = upVotes;
         this.downVotes = downVotes;
-        this.arguments = arguments;
+        this.args = arguments;
     }
 }

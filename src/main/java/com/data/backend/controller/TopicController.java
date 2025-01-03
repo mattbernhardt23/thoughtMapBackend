@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/topics")
+@RequestMapping("/api/topic")
 public class TopicController {
 
     @Autowired
@@ -24,9 +24,9 @@ public class TopicController {
         return topicService.getAllTopics();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Topic> getTopicById(@PathVariable String id) {
-        Optional<Topic> topic = topicService.getTopicById(id);
+    @GetMapping("/get-topic-by-id")
+    public ResponseEntity<Topic> getTopicById(@RequestParam("topic_id") String topicId) {
+        Optional<Topic> topic = topicService.getTopicById(topicId);
         return topic.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 

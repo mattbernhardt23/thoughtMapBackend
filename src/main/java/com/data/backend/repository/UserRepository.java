@@ -14,4 +14,5 @@ public interface UserRepository extends MongoRepository<User, String> {
     // Query to retrieve only the IDs (_id field)
     @Query(value = "{}", fields = "{_id: 1}")
     List<String> findAllIds();
+
 }

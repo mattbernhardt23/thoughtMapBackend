@@ -16,4 +16,8 @@ public class Argument {
     private String title;
     private String description;
     private Date dateCreated = new Date();
+
+    public boolean isSupporting() {
+        return supporting;
+    }
 }
