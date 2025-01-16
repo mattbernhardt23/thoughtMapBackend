@@ -15,14 +15,15 @@ public class BackendApplication {
 		String mongoUri = null;
 
 		// 1. Check for Docker secret
-		// String secretPath = "/run/secrets/mongo-uri";
-		String mySecretValue = System.getenv("MONGO_URI");
+		String secretPath = "/run/secrets/mongo-uri";
+		// String mySecretValue = System.getenv("MONGO_URI");
 		try {
-			if (mySecretValue != null) {
-				// mongoUri = new String(Files.readAllBytes(Paths.get(secretPath)),
-				// StandardCharsets.UTF_8).trim();
-				mongoUri = mySecretValue;
+			if (secretPath != null) {
+				mongoUri = new String(Files.readAllBytes(Paths.get(secretPath)),
+						StandardCharsets.UTF_8).trim();
+				// mongoUri = mySecretValue;
 				System.out.println("Loaded MONGO_URI from Docker secret.");
+				// System.out.println("Loaded MONGO_URI from Docker secret: " + mySecretValue);
 			}
 		} catch (Exception e) {
 			System.err.println("Failed to read Docker secret: " + e.getMessage());

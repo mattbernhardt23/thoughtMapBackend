@@ -1,9 +1,9 @@
 services:
   backend:
-    image: backend-service
+    image: backend-service #761018876037.dkr.ecr.us-east-2.amazonaws.com/thoughtmap/service/data:latest
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 3
       resources:
         limits:
           cpus: "1.0"
