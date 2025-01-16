@@ -5,7 +5,26 @@ printf 'mongodb+srv://matth3wbernhardt:PiJ1sXuORDPCO9m7@conversationcluster.65lk
 (base) matthewbernhardt@Matthews-MacBook-Air thoughtMapBackend % printf 'mongodb+srv://matth3wbernhardt:PiJ1sXuORDPCO9m7@conversationcluster.65lkjh7.mongodb.net/test?retryWrites=true&w=majority' | docker secret create mongo-uri -
 c3bytsx1oq1wdalb9gdbole9d
 
-// I didn't include the command to run my docker stack file
+Command to Build Java Application
+
+mvn clean package
+
+Command to Build Locally 
+
+docker build -t backend-service .
+
+Command to Run Single Container 
+
+docker run -d -p 8080:8080 --name backend-container backend/service
+
+Command to Run Docker stack
+
+docker stack deploy --detach=false -c docker-stack.yml backend-stack
+
+Command to Kill Docker stack
+
+docker stack rm backend-stack
+
 
 The first time it failed because 'docker swarm init' had not been run. I will have to update this on my EC2 instance as well.
 
