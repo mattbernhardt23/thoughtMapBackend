@@ -31,7 +31,7 @@ jobs:
           cache: maven
       - name: create env file
         run: |
-          echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> ./env
+          echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
       - name: Build with Maven
         run: mvn -B package --file pom.xml
 
