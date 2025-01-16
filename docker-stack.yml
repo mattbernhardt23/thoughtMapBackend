@@ -1,6 +1,6 @@
 services:
   backend:
-    image: backend-service #761018876037.dkr.ecr.us-east-2.amazonaws.com/thoughtmap/service/data:latest
+    image: mattbernhardt23/backend-service:latest #761018876037.dkr.ecr.us-east-2.amazonaws.com/thoughtmap/service/data:latest
     deploy:
       mode: replicated
       replicas: 3
