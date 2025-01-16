@@ -38,7 +38,7 @@ jobs:
 
     steps:
       - name: Copy docker-stack.yml to EC2
-        uses: appleboy/scp-action@v0.1.8
+        uses: appleboy/scp-action@v0.1.6
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
