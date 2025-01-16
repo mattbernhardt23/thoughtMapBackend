@@ -62,11 +62,7 @@ public class TopicService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found."));
 
         // Check if the user is authorized to update the topic
-        if (isUserAuthorized(topic, user)) {
-
-            // Save the updated topic to the database
-            topicRepository.save(topic);
-        } else {
+        if (!isUserAuthorized(topic, user)) {
             throw new IllegalArgumentException("You are not authorized to update this topic.");
         }
 

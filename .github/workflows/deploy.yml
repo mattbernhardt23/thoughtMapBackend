@@ -1,0 +1,91 @@
+name: CI/CD Pipeline for ThoughtMap
+
+on:
+  push:
+    branches:
+      - main # Trigger on pushes to the main branch
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: us-east-2
+      ECR_REGISTRY: 761018876037.dkr.ecr.us-east-2.amazonaws.com
+      ECR_REPOSITORY: thoughtmap/service/data
+      DOCKER_IMAGE_TAG: latest
+
+    steps:
+      # Step 1: Checkout Code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set Up Dependencies
+      - name: Install necessary tools
+        run: |
+          sudo apt-get update && sudo apt-get install -y awscli docker.io maven jq zip
+          echo "Tools installed:"
+          aws --version
+          docker --version
+          mvn --version
+          zip --version
+
+      # Step 3: Authenticate with Docker Hub and Amazon ECR
+      - name: Retrieve Docker credentials from AWS Secrets Manager
+        id: docker_secrets
+        run: |
+          SECRET=$(aws secretsmanager get-secret-value --secret-id DockerLogin --region us-east-1 --query SecretString --output text)
+          echo "::set-output name=username::$(echo $SECRET | jq -r .DOCKER_USERNAME)"
+          echo "::set-output name=password::$(echo $SECRET | jq -r .DOCKER_PASSWORD)"
+
+      - name: Login to Docker Hub
+        run: |
+          echo "${{ steps.docker_secrets.outputs.password }}" | docker login --username "${{ steps.docker_secrets.outputs.username }}" --password-stdin
+
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+
+      # Step 4: Build the Application
+      - name: Build the Java application with Maven
+        run: mvn clean package -DskipTests
+
+      # Step 5: Build and Tag Docker Image
+      - name: Build and Tag Docker Image
+        run: |
+          docker build -t thoughtmap-backend .
+          docker tag thoughtmap-backend:latest $ECR_REGISTRY/$ECR_REPOSITORY:$DOCKER_IMAGE_TAG
+
+      # Step 6: Push Docker Image to Amazon ECR
+      - name: Push Docker Image
+        run: |
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$DOCKER_IMAGE_TAG
+
+      # Step 7: Package the Application
+      - name: Package the application bundle
+        run: |
+          zip -r ThoughtMapDataService.zip appspec.yml buildspec.yml scripts/ target/
+
+      # Step 8: Upload Artifacts
+      - name: Upload Deployment Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ThoughtMapDataService
+          path: ThoughtMapDataService.zip
+
+      # Step 9: Deploy to EC2
+      - name: Deploy Application to EC2
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+        run: |
+          scp -o StrictHostKeyChecking=no ThoughtMapDataService.zip ec2-user@3.19.238.206:/home/ec2-user/
+          ssh -o StrictHostKeyChecking=no ec2-user@3.19.238.206 << EOF
+            sudo unzip -o /home/ec2-user/ThoughtMapDataService.zip -d /var/app/
+            echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
+            echo ".env file generated."
+            sudo bash /var/app/scripts/cleanup.sh
+            sudo bash /var/app/scripts/install_docker.sh
+            sudo bash /var/app/scripts/stop_docker.sh
+            sudo bash /var/app/scripts/start_docker.sh
+            sudo bash /var/app/scripts/health_check.sh
+          EOF
