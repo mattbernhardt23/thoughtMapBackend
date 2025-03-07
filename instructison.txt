@@ -42,3 +42,12 @@ To add a manager to this swarm, run 'docker swarm join-token manager' and follow
 To kill the docker stack, run the following command. We have to kill it, otherwise the containers will just keep re-starting.
 
 docker stack rm backend-stack
+
+[ec2-user@ip-172-31-19-131 ~]$ docker swarm init
+Swarm initialized: current node (lhycizhbbs5jsb7fdopfuuww2) is now a manager.
+
+To add a worker to this swarm, run the following command:
+
+    docker swarm join --token SWMTKN-1-4cqh0hinas50rxalnfnvnn8jv45utqd88c4ykue24qr1jpdsi8-3ywj57zmhn080qbt4tujqb8q7 172.31.19.131:2377
+
+To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
